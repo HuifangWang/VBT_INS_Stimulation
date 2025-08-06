@@ -2,7 +2,9 @@
 VBT for Sitmulation in epilepsy
 
 Codes: Virtual brain twins for stimulation in epilepsy
-Huifang E Wang，Borana Dollomaja，Paul Triebkorn,  Gian Marco Duma, Adam Williamson, Julia Makhalova，Jean-Didier Lemarechal， Fabrice Bartolomei，Viktor Jirsa
+Wang, H. E., Dollomaja, B., Triebkorn, P., Duma, G. M., Williamson, A., Makhalova, J., Lemarechal, J.-D., Bartolomei, F., & Jirsa, V. (2025). Virtual brain twins for stimulation in epilepsy. Nature Computational Science. https://doi.org/10.1038/s43588-025-00841-6
+https://www.nature.com/articles/s43588-025-00841-6
+
 
 Abstract:
 Estimating the epileptogenic zone network (EZN) is an important part of the diagnosis of drug-resistant focal epilepsy and plays a pivotal role in treatment and intervention. Virtual brain twins provide a modeling method for personalized diagnosis and treatment. They integrate patient-specific brain topography with structural connectivity from anatomical neuroimaging such as MRI, and dynamic activity from functional recordings such as EEG and stereo-EEG (SEEG). Seizures demonstrate rich spatial and temporal features in functional recordings, which can be exploited to estimate the EZN. Stimulation-induced seizures can provide important and complementary information. We consider invasive SEEG stimulation and non-invasive temporal interference (TI) stimulation as a complementary approach. This paper offers a virtual brain twin framework for EZN diagnosis based on stimulation-induced seizures. It provides an important methodological and conceptual basis to make the transition from invasive to non-invasive diagnosis and treatment of drug-resistant focal epilepsy.
