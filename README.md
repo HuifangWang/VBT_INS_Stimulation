@@ -30,6 +30,9 @@ o	Pandas
 o	MNE
 o	Matplotlib
 o	TVB library
+o	Parfor
+o	Openpyxl
+o	GNU Parallel
 
 
 1.	Structural scaffold reconstruction:

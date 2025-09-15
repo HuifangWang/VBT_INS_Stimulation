@@ -1,0 +1,24 @@
+name: Mirror to EBRAINS 2.0
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  to_ebrains_2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: syncmaster
+        uses: wei/git-sync@v3
+        with:
+          source_repo: "HuifangWang/VBT_INS_Stimulation"
+          source_branch: "master"
+          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_2_0_SECRET }}@gitlab.ebrains.eu/ri/projects-and-initiatives/ebrains-2/wp3/workflows/task3.4.git"
+          destination_branch: "master"
+      - name: synctags
+        uses: wei/git-sync@v3
+        with:
+          source_repo: "HuifangWang/VBT_INS_Stimulation"
+          source_branch: "refs/tags/*"
+          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_2_0_SECRET }}@gitlab.ebrains.eu/ri/projects-and-initiatives/ebrains-2/wp3/workflows/task3.4.git"
+          destination_branch: "refs/tags/*"
