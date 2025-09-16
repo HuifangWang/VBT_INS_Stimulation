@@ -6,7 +6,6 @@ Created on Tue Oct  1 16:49:44 2019
 @author: Huifang Wang  adapted from retrospective patients to trial patients
 """
 import mne
-import sys
 import scipy.signal as signal
 import numpy as np
 import zipfile
@@ -21,17 +20,18 @@ import matplotlib.pyplot as plt
 import pylab as pl
 import matplotlib.gridspec as gridspec
 from vep_stim.stan import stan
-from itertools import compress
 import matplotlib
 import subprocess
 from vep_stim.core.util import gain_matrix_seeg
+import importlib.resources as pkg_resources
+import vep_stim.core.util.data as data_dir
 
 
 
 def read_vep_mrtrix_lut():
     roi_names = []
-    fname = op.join(op.dirname(op.dirname(op.realpath(__file__))), 'util/data/VepMrtrixLut.txt')
-    with open(fname, 'r') as fd:
+    lut_file = pkg_resources.files(data_dir) / "VepMrtrixLut.txt"
+    with lut_file.open('r') as fd:
         for line in fd.readlines():
             i, roi_name, *_ = line.strip().split()
             roi_names.append(roi_name)

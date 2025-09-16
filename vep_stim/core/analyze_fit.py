@@ -12,9 +12,18 @@ except:
     pass
 plt.interactive(True)
 import tempfile
+import shutil
 
 
 roi = vep_prepare_op.read_vep_mrtrix_lut()
+
+def locate_gnu_parallel():
+    parallel_executable = shutil.which("parallel")
+    if parallel_executable:
+        return parallel_executable
+    else:
+        print("GNU Parallel not found on this system. Please install it before running this script.")
+        return None
 
 #
 # vep_prepare.fitting_optimization_errors(pid, seizure_ind=None, opts=['vep_W'], save_fname=None)
@@ -334,6 +343,9 @@ def analyze_fits(pid, pid_cr, seizures, fit_ids, options, report=True, summarize
 def analyze_fits_report_parallel(pid, pid_cr, seizures, fit_ids, options, parallel_mode=True, 
                                  data_base_dir='/data', conda_path="/home/prior/anaconda3/etc/profile.d/conda.sh", nprocs=30):
 
+    parallel_executable = locate_gnu_parallel()
+    if parallel_executable is None:
+        return
     parallel_dir = op.join(vep_prepare_op.pid_fit_dir(pid, data_base_dir=data_base_dir), 'parallel', 'fit_analysis')
     os.makedirs(parallel_dir, exist_ok=True)
     parallel_dir = tempfile.mkdtemp(dir=parallel_dir)
@@ -345,7 +357,7 @@ def analyze_fits_report_parallel(pid, pid_cr, seizures, fit_ids, options, parall
     parallel_jobs_fname = op.join(jobs_dir, f'do_all_local.bash')
     print(f'>> Save list of jobs in {parallel_jobs_fname}')
     fd_parallel_jobs = open(parallel_jobs_fname, 'w')
-    parallel_command = f'time /usr/bin/parallel -j {nprocs} < {parallel_jobs_fname}'
+    parallel_command = f'time {parallel_executable} -j {nprocs} < {parallel_jobs_fname}'
     fd_parallel_jobs.write(f'# {parallel_command}\n')
 
     report = True

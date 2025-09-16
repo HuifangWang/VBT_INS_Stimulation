@@ -6,10 +6,8 @@ Created on Tue Oct  1 16:49:44 2019
 @author: Huifang Wang  adapted from retrospective patients to trial patients
 """
 import mne
-import sys
 import scipy.signal as signal
 import numpy as np
-import zipfile
 import os
 import glob
 import multiprocessing as mp
@@ -17,11 +15,13 @@ import scipy.signal
 from scipy.ndimage import binary_erosion
 import os.path as op
 import matplotlib.pyplot as plt
+import importlib.resources as pkg_resources
+import vep_stim.core.util.data as data_dir
 
 def read_vep_mrtrix_lut():
     roi_names = []
-#     with open('../util/data/VepMrtrixLut.txt', 'r') as fd:
-    with open('/root/capsule/code/util/data/VepMrtrixLut.txt', 'r') as fd:
+    lut_file = pkg_resources.files(data_dir) / "VepMrtrixLut.txt"
+    with lut_file.open('r') as fd:
         for line in fd.readlines():
             i, roi_name, *_ = line.strip().split()
             roi_names.append(roi_name)
