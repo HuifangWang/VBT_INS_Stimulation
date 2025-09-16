@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vep-stim"
+readme = "README.md"
+version = "0.1.0a1"
+description = "Virtual Brain Twins for Stimulation in epilepsy"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+]
+dependencies = [
+    "cmdstanpy",
+    "matplotlib",
+    "mne",
+    "nibabel",
+    "numpy",
+    "openpyxl",
+    "pandas",
+    "parfor",
+    "tvb-library",
+    "scipy",
+    ]
+keywords = ["vep", "stimulation", "vbt", "inference"]
+authors = [
+    { name = "Huifang Wang" }
+]
+
+[project.urls]
+Homepage = "https://github.com/HuifangWang/VBT_INS_Stimulation"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "vep_stim/"
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "vep_stim/"
+]
+

@@ -1,5 +1,5 @@
 # VBT_INS_Stimulation
-VBT for Sitmulation in epilepsy
+VBT for Stimulation in epilepsy
 
 Codes for the published paper:
 Wang, H. E., Dollomaja, B., Triebkorn, P., Duma, G. M., Williamson, A., Makhalova, J., Lemarechal, J.-D., Bartolomei, F., & Jirsa, V. (2025). Virtual brain twins for stimulation in epilepsy. Nature Computational Science. https://doi.org/10.1038/s43588-025-00841-6
