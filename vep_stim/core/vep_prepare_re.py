@@ -20,12 +20,11 @@ import json
 import matplotlib.pyplot as plt
 import pylab as pl
 import matplotlib.gridspec as gridspec
-import stan
+from vep_stim.stan import stan
 from itertools import compress
 import matplotlib
 import subprocess
-sys.path.append('../util/')
-import gain_matrix_seeg
+from vep_stim.core.util import gain_matrix_seeg
 
 
 

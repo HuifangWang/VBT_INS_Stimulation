@@ -1,8 +1,8 @@
 import os
 import os.path as op
-import vep_prepare_op
+from vep_stim.core import vep_prepare_op
 import numpy as np
-import stan
+from vep_stim.stan import stan
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt

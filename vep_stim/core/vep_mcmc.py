@@ -1,7 +1,7 @@
 import sys
 import os.path as op
 
-import vep_prepare_op
+from vep_stim.core import vep_prepare_op
 import numpy as np
 import scipy
 from scipy import linalg
@@ -13,8 +13,8 @@ try:
 except:
     pass
 plt.interactive(True)
-import stan
-import analyze_fit
+from vep_stim.stan import stan
+from vep_stim.core import analyze_fit
 import subprocess
 import pandas as pd
 from parfor import parfor

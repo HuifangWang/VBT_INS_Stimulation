@@ -13,8 +13,8 @@ from pathlib import Path
 from scipy import ndimage
 from multiprocessing import Pool
 from functools import partial
-from utils_py.calc_centroid_and_volume import calc_centroid_and_volume
-import utils_py.gain_matrix_seeg as gms
+from vep_stim.core.utils_py.calc_centroid_and_volume import calc_centroid_and_volume
+import vep_stim.core.utils_py.gain_matrix_seeg as gms
 
 def save_connectivity(atlas, save_dir, nodes_image, mrtrix_lut_names, 
                         weights, lengths, region_map, nthreads):

@@ -255,7 +255,7 @@ def read_one_sample(line, data, sample_idx, var_names, var_dims,
     var_vals = [float(el.strip()) for el in line.split(',')]
     for var_name in var_names:
         start_idx = var_start_idx[var_name]
-        end_idx = start_idx + (np.product(var_dims[var_name])
+        end_idx = start_idx + (np.prod(var_dims[var_name])
                                if (var_dims[var_name]) else 1)
         data[var_name][sample_idx] = np.array(
             var_vals[start_idx:end_idx]).reshape(
@@ -304,7 +304,11 @@ def read_samples(csvs, nwarmup=0, nsampling=0, variables_of_interest=[]):
                             nsamples = sampling_iters + 0 if (
                                 ignore_warmup) else warmup_iters
                     elif ('save_warmup' in t):
-                        save_warmup = int(t[1:].strip().split(' ')[2].strip())
+                        save_warmup = False
+                        save_warmup_str = t[1:].strip().split(' ')[2].strip()
+                        if save_warmup_str in ('true', 'True'):
+                            save_warmup = True
+                        save_warmup = int(save_warmup)
                         if (not ignore_warmup and not save_warmup):
                             raise (Exception(
                                 'csv file does not contain warmup samples, nwarmup must be \
