@@ -17,13 +17,11 @@ import shutil
 
 roi = vep_prepare_op.read_vep_mrtrix_lut()
 
-def locate_gnu_parallel():
-    parallel_executable = shutil.which("parallel")
-    if parallel_executable:
-        return parallel_executable
-    else:
-        print("GNU Parallel not found on this system. Please install it before running this script.")
-        return None
+def locate_on_system(library_name):
+    executable = shutil.which(library_name)
+    if executable is None:
+        print(f"GNU {library_name} not found on this system. Please install it before running this script.")
+    return executable
 
 #
 # vep_prepare.fitting_optimization_errors(pid, seizure_ind=None, opts=['vep_W'], save_fname=None)
@@ -343,8 +341,9 @@ def analyze_fits(pid, pid_cr, seizures, fit_ids, options, report=True, summarize
 def analyze_fits_report_parallel(pid, pid_cr, seizures, fit_ids, options, parallel_mode=True, 
                                  data_base_dir='/data', conda_path="/home/prior/anaconda3/etc/profile.d/conda.sh", nprocs=30):
 
-    parallel_executable = locate_gnu_parallel()
-    if parallel_executable is None:
+    parallel_executable = locate_on_system("parallel")
+    time_executable = locate_on_system("time")
+    if parallel_executable is None or time_executable is None:
         return
     parallel_dir = op.join(vep_prepare_op.pid_fit_dir(pid, data_base_dir=data_base_dir), 'parallel', 'fit_analysis')
     os.makedirs(parallel_dir, exist_ok=True)

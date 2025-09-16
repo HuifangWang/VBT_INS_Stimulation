@@ -26,11 +26,12 @@ def specify_stan_model(stanmodel):
 
 
 def run_jobs_parallel(parallel_jobs_fname, n_jobs):
-    parallel_executable = analyze_fit.locate_gnu_parallel()
-    if parallel_executable is None:
+    parallel_executable = analyze_fit.locate_on_system("parallel")
+    time_executable = analyze_fit.locate_on_system("time")
+    if parallel_executable is None or time_executable is None:
         return
 
-    command = ['time', parallel_executable, '-j', f'{n_jobs}']
+    command = [time_executable, parallel_executable, '-j', f'{n_jobs}']
     fd = open(parallel_jobs_fname, 'r')
     process = subprocess.run(command,
                              stdin=fd,
@@ -59,8 +60,9 @@ def create__jobs__optimize__rpne_039(datafeatures_fname,
                                      stanmodel,
                                      init_uniform_distribution_range=5,
                                      n_optimize=50, n_jobs=20, tol_param=1e-10):
-    parallel_executable = analyze_fit.locate_gnu_parallel()
-    if parallel_executable is None:
+    parallel_executable = analyze_fit.locate_on_system("parallel")
+    time_executable = analyze_fit.locate_on_system("time")
+    if parallel_executable is None or time_executable is None:
         return
 
     datafeatures_id = op.basename(datafeatures_fname).rstrip('__datafeatures.R')
@@ -74,7 +76,7 @@ def create__jobs__optimize__rpne_039(datafeatures_fname,
     parallel_jobs_fname = op.join(jobs_dir, f'do_all_local.bash')
     # print(f'>> Save list of jobs in {parallel_jobs_fname}')
     fd_parallel_jobs = open(parallel_jobs_fname, 'w')
-    parallel_command = f'time {parallel_executable} -j {n_jobs} < {parallel_jobs_fname}'
+    parallel_command = f'{time_executable} {parallel_executable} -j {n_jobs} < {parallel_jobs_fname}'
     fd_parallel_jobs.write(f'# {parallel_command}\n')
     rpne_039__stan_fname = specify_stan_model(stanmodel) 
     for j in range(n_optimize):
@@ -170,8 +172,9 @@ def create__init_files__sample__rpne_039(datafeatures_fname, stanmodel, variable
 
 
 def create__jobs__sample__rpne_039(datafeatures_fname,stanmodel, n_init=8, n_chains_per_init=2, n_jobs=None):
-    parallel_executable = analyze_fit.locate_gnu_parallel()
-    if parallel_executable is None:
+    parallel_executable = analyze_fit.locate_on_system("parallel")
+    time_executable = analyze_fit.locate_on_system("time")
+    if parallel_executable is None or time_executable is None:
         return
 
     rpne_039__stan_fname = specify_stan_model(stanmodel)
@@ -195,7 +198,7 @@ def create__jobs__sample__rpne_039(datafeatures_fname,stanmodel, n_init=8, n_cha
     parallel_jobs_fname = op.join(jobs_dir, f'do_all_local.bash')
     # print(f'>> Save list of jobs in {parallel_jobs_fname}')
     fd_parallel_jobs = open(parallel_jobs_fname, 'w')
-    parallel_command = f'time {parallel_executable} -j {n_jobs} < {parallel_jobs_fname}'
+    parallel_command = f'{time_executable} {parallel_executable} -j {n_jobs} < {parallel_jobs_fname}'
     fd_parallel_jobs.write(f'# {parallel_command}\n')
 
     num_warmup = 500
