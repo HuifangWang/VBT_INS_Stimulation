@@ -1,7 +1,6 @@
 {
     "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
     "type": "SoftwareSourceCode",
-    "name": "VBT INS Stimulation",
     "author": [
         {
             "id": "_:author_1",
@@ -14,15 +13,16 @@
             "givenName": "Huifang"
         }
     ],
-    "codeRepository": "https://gitlab.ebrains.eu/ri/projects-and-initiatives/ebrains-2/wp3/workflows/task3.4.git",
+    "codeRepository": "https://github.com/HuifangWang/VBT_INS_Stimulation.git",
     "dateModified": "2025-09-16",
     "datePublished": "2025-09-16",
-    "description": "Estimating the epileptogenic zone network (EZN) is an important part of the diagnosis of drug-resistant focal epilepsy and plays a pivotal role in treatment and intervention. Virtual brain twins provide a modeling method for personalized diagnosis and treatment. They integrate patient-specific brain topography with structural connectivity from anatomical neuroimaging such as MRI, and dynamic activity from functional recordings such as EEG and stereo-EEG (SEEG). Seizures demonstrate rich spatial and temporal features in functional recordings, which can be exploited to estimate the EZN. Stimulation-induced seizures can provide important and complementary information. We consider invasive SEEG stimulation and non-invasive temporal interference (TI) stimulation as a complementary approach. This paper offers a virtual brain twin framework for EZN diagnosis based on stimulation-induced seizures. It provides an important methodological and conceptual basis to make the transition from invasive to non-invasive diagnosis and treatment of drug-resistant focal epilepsy.",
-    "downloadUrl": "https://gitlab.ebrains.eu/ri/projects-and-initiatives/ebrains-2/wp3/workflows/task3.4/-/archive/0.1.0a1/task3.4-0.1.0a1.zip",
+    "description": "This software package offers a solution for epileptogenic zone network (EZN) diagnosis based on stimulation-induced seizures. Estimating the epileptogenic zone network (EZN) is an important part of the diagnosis of drug-resistant focal epilepsy and plays a pivotal role in treatment and intervention. Both invasive SEEG stimulation and non-invasive temporal interference (TI) stimulation are considered as a complementary approach. Inference step is based on STAN.",
+    "downloadUrl": "https://github.com/HuifangWang/VBT_INS_Stimulation/archive/refs/tags/0.1.0a1.zip",
     "funder": {
         "type": "Organization",
         "name": "EU"
     },
+    "isPartOf": "https://lab.jsc.ebrains.eu/",
     "keywords": [
         "vbt",
         "ins",
@@ -32,6 +32,7 @@
         "stan"
     ],
     "license": "https://spdx.org/licenses/Apache-2.0",
+    "name": "VBT INS Stimulation",
     "operatingSystem": [
         "Linux",
         "Windows",
@@ -41,9 +42,8 @@
         "Python 3",
         "STAN"
     ],
-    "schema:releaseNotes": "https://gitlab.ebrains.eu/ri/projects-and-initiatives/ebrains-2/wp3/workflows/task3.4/-/tags/0.1.0a1",
+    "schema:releaseNotes": "https://github.com/HuifangWang/VBT_INS_Stimulation/releases/tag/0.1.0a1",
     "version": "0.1.0a1",
-    "developmentStatus": "active",
     "funding": "101147319 (EBRAINS 2.0 Project)",
     "referencePublication": "https://doi.org/10.1038/s43588-025-00841-6"
 }
