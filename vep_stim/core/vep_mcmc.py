@@ -9,17 +9,19 @@ try:
 except:
     pass
 plt.interactive(True)
+import vep_stim.stan as stan_dir
 from vep_stim.stan import stan
 from vep_stim.core import analyze_fit
 import subprocess
 import pandas as pd
 from parfor import parfor
 import random
+import importlib.resources as pkg_resources
 
 
 #stanmodel = 'rpne_039'
 def specify_stan_model(stanmodel):
-    rpne_039__stan_fname = op.join(op.dirname(op.realpath(__file__)), '../stan/', stanmodel)
+    rpne_039__stan_fname = pkg_resources.files(stan_dir) / stanmodel
     assert op.exists(rpne_039__stan_fname), f'Missing stan model: {rpne_039__stan_fname}'
     return rpne_039__stan_fname
 

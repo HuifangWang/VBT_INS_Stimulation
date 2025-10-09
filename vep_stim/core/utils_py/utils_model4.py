@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 #
-
 """
-Spatially extended Epileptor model.
+Spatially extended Epileptor model with accumulatory effects for stimulation.
 
 """
 import numpy
 from tvb.simulator.models.base import ModelNumbaDfun
-from numba import guvectorize, float64
+from numba import guvectorize, float64, vectorize
 from tvb.basic.neotraits.api import NArray, List, Range, Final, HasTraits, Attr
 from tvb.datatypes.equations import SpatialApplicableEquation, FiniteSupportEquation
 from tvb.simulator.coupling import Coupling
@@ -15,84 +14,8 @@ from tvb.simulator.lab import *
 import scipy
 from scipy.optimize import fsolve
 
-
-
-def get_equilibrium(model, init):
-    nvars = len(model.state_variables)
-    cvars = len(model.cvar)
-    def func(x):
-        fx = model.dfun(x.reshape((nvars, 1, 1)),
-                        np.zeros((cvars, 1, 1)))
-        return fx.flatten()
-    x = fsolve(func, init)
-    return x
-
-def zero_rows(M, rows):
-    diag = scipy.sparse.eye(M.shape[0]).tolil()
-    for r in rows:
-        diag[r, r] = 0
-    return diag.dot(M)
-
-def zero_columns(M, columns):
-    diag = scipy.sparse.eye(M.shape[1]).tolil()
-    for c in columns:
-        diag[c, c] = 0
-    return M.dot(diag)
-
-class LaplaceKernel(SpatialApplicableEquation, FiniteSupportEquation):
-    """
-    A Laplace kernel equation.
-    offset: parameter to extend the behaviour of this function
-    when spatializing model parameters.
-    """
-
-    equation = Final(
-        label="Laplace kernel",
-        default="amp * (1./(2.*b)) * (exp(-abs(var)/b)) + offset",
-        )
-
-    parameters = Attr(
-        field_type=dict,
-        label="Laplace parameters",
-        default=lambda: {"amp": 1.0, "b": 1.0, "offset": 0.0})
-
-# overwrite function of local connectivity to take into account the vertex area
-class LocalConnectivity_new(local_connectivity.LocalConnectivity):
-    def compute(self) :
-        self.log.info("Mapping geodesic distance through the LocalConnectivity.")
-
-        # Start with data being geodesic_distance_matrix, then map it through equation
-        # Then replace original data with result...
-        self.matrix_gdist.data = self.equation.evaluate(self.matrix_gdist.data)
-
-        # scale by vertex areas and skip homogenization part
-        area_mtx = scipy.sparse.diags(self.surface.vertex_areas)
-        self.matrix_gdist = self.matrix_gdist * area_mtx
-        self.matrix = self.matrix_gdist.tocsr()
-
-# add functionality to compute vertex area to surface
-class CorticalSurface_new(surfaces.CorticalSurface) :
-    _vertex_areas = None
-    _triangle_areas = None
-    @property
-    def vertex_areas(self):
-        """An array specifying the area belonging to the vertices of a surface."""
-        if self._vertex_areas is None:
-            self._vertex_areas  = self._find_vertex_areas()
-        return self._vertex_areas
-
-    def _find_vertex_areas(self):
-        """Calculates the area belonging to the vertices of a surface."""
-        vertex_areas = numpy.zeros(self.number_of_vertices)
-        for i, triangle in enumerate(self.triangles):
-            nverts = len(triangle) # This should always be 3 - it is a triangle afterall.
-            for j in triangle:
-                vertex_areas[j] += self.triangle_areas[i]/nverts
-        return vertex_areas
-
-
-class SpatEpi(ModelNumbaDfun):
-    _ui_name = "SpatEpi"
+class SpatEpiStim(ModelNumbaDfun):
+    _ui_name = "SpatEpiStim"
     ui_configurable_parameters = []
 
     y0 = NArray(
@@ -109,6 +32,11 @@ class SpatEpi(ModelNumbaDfun):
         label="tau2",
         default=numpy.array([10.0]),
         doc="Temporal scaling in the fifth state variable")
+
+    tau3 = NArray(
+        label="tau2",
+        default=numpy.array([2857.0]),
+        doc="Temporal scaling in the seventh (m) state variable")
 
     x0 = NArray(
         label="x0",
@@ -182,6 +110,18 @@ class SpatEpi(ModelNumbaDfun):
         domain=Range(lo=0.001, hi=10.0, step=0.001),
         doc="Time scaling of the whole system")
 
+    Istim = NArray(
+        label=":math:`I_{ext}`",
+        domain=Range(lo=0, hi=50.0, step=0.1),
+        default=numpy.array([0.]),
+        doc="External input current from the stimuli.")
+
+    threshold = NArray(
+        label=":math:`x_0`",
+        domain=Range(lo=0.0, hi=3.0, step=0.1),
+        default=numpy.array([1.8]),
+        doc="Accumulation threshold for m")
+
     state_variable_range = Final(
         label="State variable ranges [lo, hi]",
         default={"u1": numpy.array([-2., 1.]),
@@ -189,24 +129,34 @@ class SpatEpi(ModelNumbaDfun):
                  "s": numpy.array([2.0, 5.0]),
                  "q1": numpy.array([-2., 0.]),
                  "q2": numpy.array([0., 2.]),
-                 "g": numpy.array([-1., 1.])},
+                 "g": numpy.array([-1., 1.]),
+                 "m": numpy.array([-16.0, 6.0])
+                 },
         doc="Typical bounds on state variables in the Epileptor model."
         )
 
     variables_of_interest = List(
         of=str,
         label="Variables watched by Monitors",
-        choices=['u1', 'u2', 's', 'q1', 'q2', 'g', 'q1 - u1'],
+        choices=['u1', 'u2', 's', 'q1', 'q2', 'g', 'm', 'q1 - u1'],
         default=['q1 - u1', 's'],
         doc="Quantities of the Epileptor available to monitor.",
     )
 
-    state_variables = ['u1', 'u2', 's', 'q1', 'q2', 'g']
+    state_variables = ['u1', 'u2', 's', 'q1', 'q2', 'g', 'm']
 
-    _nvar = 6
+    _nvar = 7
     cvar = numpy.array([0], dtype=numpy.int32)
 
-    def dfun(self, x, c, local_coupling=0.0):
+    def dfun(self, x, c, local_coupling=0.0, stimulus=0.0):
+
+        if isinstance(stimulus, numpy.ndarray):
+            self.Istim = stimulus[0, :, 0]  # stimulus shape (nr_var, nr_regions, 1)
+
+        elif isinstance(stimulus, float) and stimulus != 0.0:
+            print("Error in stimulus argument in 3D epileptor model.")
+            return
+
         x_ = x.reshape(x.shape[:-1]).T
         c_ = c.reshape(c.shape[:-1]).T
 
@@ -223,12 +173,21 @@ class SpatEpi(ModelNumbaDfun):
                             self.x0, self.Iext, self.Iext2,
                             loc11, loc22, loc12,
                             self.tt, self.y0,
-                            self.tau0, self.tau2, self.gamma)
+                            self.tau0, self.tau2, self.tau3, self.gamma,
+                            self.Istim, self.threshold)
         return deriv.T[..., numpy.newaxis]
 
+@vectorize([float64(float64, float64)])
+def heaviside_impl(x1, x2):
+    if x1 < 0:
+        return 0.0
+    elif x1 > 0:
+        return 1.0
+    else:
+        return x2
 
-@guvectorize([(float64[:],) * 14], '(n),(m)' + ',()'*11 + '->(n)', nopython=True, target='cpu')
-def _numba_dfun(y, c_pop, x0, Iext, Iext2, loc11, loc22, loc12, tt, y0, tau0, tau2, gamma, ydot):
+@guvectorize([(float64[:],) * 17], '(n),(m)' + ',()'*14 + '->(n)', nopython=True, target='cpu')
+def _numba_dfun(y, c_pop, x0, Iext, Iext2, loc11, loc22, loc12, tt, y0, tau0, tau2, tau3, gamma, Istim, threshold, ydot):
     "Gufunc for Epileptor model equations."
 
     # population 1
@@ -237,7 +196,8 @@ def _numba_dfun(y, c_pop, x0, Iext, Iext2, loc11, loc22, loc12, tt, y0, tau0, ta
     else:
         ydot[0] = (y[3] - 0.6 * (y[2] - 4.0) ** 2) * y[0]
 
-    ydot[0] = tt[0] * (y[1] - ydot[0] - y[2] + Iext[0] + loc11[0] + c_pop[0])
+    ydot[0] = tt[0] * (y[1] - ydot[0] - y[2] + Iext[0] + 400 * Istim[0] + loc11[0] + c_pop[0])
+    # ydot[0] = tt[0] * (y[1] - ydot[0] - y[2] + Iext[0] + 3*Istim[0] + loc11[0] + c_pop[0])
     ydot[1] = tt[0] * (y0[0] - 5*y[0]**2 - y[1])
 
     # energy
@@ -245,7 +205,9 @@ def _numba_dfun(y, c_pop, x0, Iext, Iext2, loc11, loc22, loc12, tt, y0, tau0, ta
         ydot[2] = - 0.1 * y[2] ** 7
     else:
         ydot[2] = 0.0
-    ydot[2] = tt[0] * (1.0/tau0[0] * (4.0 * (y[0] - x0[0]) - y[2] + ydot[2]))
+
+    H = heaviside_impl(y[6] - threshold[0], 1.0)
+    ydot[2] = tt[0] * (1.0/tau0[0] * (4.0 * (y[0] - x0[0] - H) - y[2] + ydot[2]))
 
     # population 2
     ydot[3] = tt[0] * (-y[4] + y[3] - y[3] ** 3 + Iext2[0] + 2 * y[5] - 0.3 * (y[2] - 3.5) + loc22[0])
@@ -258,28 +220,9 @@ def _numba_dfun(y, c_pop, x0, Iext, Iext2, loc11, loc22, loc12, tt, y0, tau0, ta
     # filter
     ydot[5] = tt[0] * (-0.01 * y[5] + 0.003 * y[0] + 0.01 * loc12[0])
 
+    # accumulation variable
+    ydot[6] = tt[0] * (1.0 / tau3[0] * (-y[6] + 1000 * abs(Istim[0])))
+    # ydot[6] = tt[0] * (1.0/tau3[0] * (-y[6] + 60 * abs(Istim[0])))
 
-class Heaviside(Coupling):
-    """
-    Implement heaviside step coupling function H(x).
-    0 if x < 0
-    0.5 if x == 0
-    1 if x > 0
-    """
-    a = NArray(
-        label=":math:`a`",
-        default=numpy.array([0.1,]),
-        domain=Range(lo=0.0, hi=10., step=0.1),
-        doc="Rescales the connection strength.",)
 
-    theta = NArray(
-            label=":math:`theta`",
-            default=numpy.array([-1]),
-            domain=Range(lo=-5., hi=5., step=0.1),
-            doc="Threshold of the heaviside step function.",)
 
-    def pre(self, x_i, x_j):
-        return numpy.heaviside(x_j - self.theta, 0.5)
-
-    def post(self, gx):
-        return self.a * gx
