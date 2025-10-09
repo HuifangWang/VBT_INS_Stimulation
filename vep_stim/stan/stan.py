@@ -5,6 +5,7 @@ I/O functions for working with CmdStan executables.
 
 import os
 import subprocess
+import cmdstanpy
 import numpy as np
 
 
@@ -189,10 +190,7 @@ def cmdstan_path(path=''):
     if path:
         path = os.path.expanduser(os.path.expandvars(path))
         os.environ['CMDSTAN'] = path
-    path = os.environ.get('CMDSTAN', 'cmdstan')
-    if not os.path.exists(os.path.join(path, 'runCmdStanTests.py')):
-        raise CmdStanNotFound(
-            'please provide CmdStan path, e.g. lib.cmdstan_path("/path/to/")')
+    path = cmdstanpy.cmdstan_path()
     return path
 
 
