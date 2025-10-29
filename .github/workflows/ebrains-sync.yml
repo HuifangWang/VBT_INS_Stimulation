@@ -2,7 +2,7 @@ name: Mirror to EBRAINS 2.0
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   to_ebrains_2:
@@ -12,9 +12,9 @@ jobs:
         uses: wei/git-sync@v3
         with:
           source_repo: "HuifangWang/VBT_INS_Stimulation"
-          source_branch: "master"
+          source_branch: "main"
           destination_repo: "https://ghpusher:${{ secrets.EBRAINS_2_0_SECRET }}@gitlab.ebrains.eu/ri/projects-and-initiatives/ebrains-2/wp3/workflows/task3.4.git"
-          destination_branch: "master"
+          destination_branch: "main"
       - name: synctags
         uses: wei/git-sync@v3
         with:
