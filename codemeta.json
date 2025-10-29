@@ -1,0 +1,49 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "type": "SoftwareSourceCode",
+    "author": [
+        {
+            "id": "_:author_1",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "INS"
+            },
+            "familyName": "Wang",
+            "givenName": "Huifang"
+        }
+    ],
+    "codeRepository": "https://github.com/HuifangWang/VBT_INS_Stimulation.git",
+    "dateModified": "2025-09-16",
+    "datePublished": "2025-09-16",
+    "description": "This software package offers a solution for epileptogenic zone network (EZN) diagnosis based on stimulation-induced seizures. Estimating the epileptogenic zone network (EZN) is an important part of the diagnosis of drug-resistant focal epilepsy and plays a pivotal role in treatment and intervention. Both invasive SEEG stimulation and non-invasive temporal interference (TI) stimulation are considered as a complementary approach. Inference step is based on STAN.",
+    "downloadUrl": "https://github.com/HuifangWang/VBT_INS_Stimulation/archive/refs/tags/0.1.0a1.zip",
+    "funder": {
+        "type": "Organization",
+        "name": "EU"
+    },
+    "isPartOf": "https://lab.jsc.ebrains.eu/",
+    "keywords": [
+        "vbt",
+        "ins",
+        "stimulation",
+        "vep",
+        "inference",
+        "stan"
+    ],
+    "license": "https://spdx.org/licenses/Apache-2.0",
+    "name": "VBT INS Stimulation",
+    "operatingSystem": [
+        "Linux",
+        "Windows",
+        "MacOs"
+    ],
+    "programmingLanguage": [
+        "Python 3",
+        "STAN"
+    ],
+    "schema:releaseNotes": "https://github.com/HuifangWang/VBT_INS_Stimulation/releases/tag/0.1.0a1",
+    "version": "0.1.0a1",
+    "funding": "101147319 (EBRAINS 2.0 Project)",
+    "referencePublication": "https://doi.org/10.1038/s43588-025-00841-6"
+}
